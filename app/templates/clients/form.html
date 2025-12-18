@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-5xl mx-auto">
+  <!-- Card/Container escuro opcional; remova se j� estiver no base.html -->
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h3 class="text-xl font-semibold mb-4">Cadastro de Cliente</h3>
+
+      <!-- Tipo de Cliente (PF / PJ) -->
+      <div class="form-control w-full">
+        <label class="label">
+          <span class="label-text">{{ form.tipo.label.text }}</span>
+        </label>
+        <div class="flex items-center gap-6">
+          {% for subfield in form.tipo %}
+            <label class="label cursor-pointer flex items-center gap-2">
+              {{ subfield(class="radio") }}
+              <span class="label-text">{{ subfield.label.text }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        {% if form.tipo.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ '; '.join(form.tipo.errors) }}</span>
+          </label>
+        {% endif %}
+      </div>
+
+      <!-- Campos comuns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="form-control w-full">
+          {{ form.nome_razao.label(class="label") }}
+          {{ form.nome_razao(class="input input-bordered w-full") }}
+          {% if form.nome_razao.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.nome_razao.errors) }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="form-control w-full">
+          {{ form.email.label(class="label") }}
+          {{ form.email(class="input input-bordered w-full") }}
+          {% if form.email.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.email.errors) }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="form-control w-full">
+          {{ form.telefone.label(class="label") }}
+          {{ form.telefone(class="input input-bordered w-full") }}
+          {% if form.telefone.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.telefone.errors) }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="form-control w-full md:col-span-2">
+          {{ form.endereco.label(class="label") }}
+          {{ form.endereco(class="textarea textarea-bordered w-full", rows="3") }}
+          {% if form.endereco.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.endereco.errors) }}</span></label>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Bloco PF -->
+      <h4 class="text-lg font-medium mt-6">Dados de Pessoa Física</h4>
+      <div id="pf-block" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-control w-full">
+          {{ form.nacionalidade.label(class="label") }}
+          {{ form.nacionalidade(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.estado_civil.label(class="label") }}
+          {{ form.estado_civil(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.profissao.label(class="label") }}
+          {{ form.profissao(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.rg.label(class="label") }}
+          {{ form.rg(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.orgao_emissor_rg.label(class="label") }}
+          {{ form.orgao_emissor_rg(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.cpf.label(class="label") }}
+          {{ form.cpf(class="input input-bordered w-full") }}
+        </div>
+      </div>
+
+      <!-- Bloco PJ -->
+      <h4 class="text-lg font-medium mt-6">Dados de Pessoa Jurídica</h4>
+      <div id="pj-block" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-control w-full">
+          {{ form.cnpj.label(class="label") }}
+          {{ form.cnpj(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full md:col-span-2">
+          {{ form.representante_nome.label(class="label") }}
+          {{ form.representante_nome(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.representante_email.label(class="label") }}
+          {{ form.representante_email(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.representante_telefone.label(class="label") }}
+          {{ form.representante_telefone(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.representante_funcao.label(class="label") }}
+          {{ form.representante_funcao(class="input input-bordered w-full") }}
+        </div>
+      </div>
+
+      <div class="mt-6">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- Toggle PF vs PJ -->
+<script>
+  (function () {
+    function toggleBlocks(value) {
+      const pf = document.getElementById('pf-block');
+      const pj = document.getElementById('pj-block');
+      if (!pf || !pj) return;
+      const isPF = (value === 'PF');
+      pf.style.display = isPF ? '' : 'none';
+      pj.style.display = isPF ? 'none' : '';
+    }
+    const checked = document.querySelector('input[name="{{ form.tipo.name }}"]:checked');
+    toggleBlocks(checked ? checked.value : '{{ form.tipo.data or "PJ" }}');
+    document.querySelectorAll('input[name="{{ form.tipo.name }}"]').forEach(function (el) {
+      el.addEventListener('change', function () { toggleBlocks(this.value); });
+    });
+  })();
+</script>
+
+{% endblock %}

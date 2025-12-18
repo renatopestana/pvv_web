@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h3 class="text-xl font-semibold mb-6">Criar Conta</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nome completo -->
+        <div class="form-control w-full md:col-span-2">
+          {{ form.full_name.label(class="label") }}
+          {{ form.full_name(class="input input-bordered w-full", placeholder="Seu nome completo") }}
+          {% if form.full_name.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ '; '.join(form.full_name.errors) }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- E-mail -->
+        <div class="form-control w-full">
+          {{ form.email.label(class="label") }}
+          {{ form.email(class="input input-bordered w-full", placeholder="seu@email.com") }}
+          {% if form.email.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ '; '.join(form.email.errors) }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- CPF (opcional) -->
+        <div class="form-control w-full">
+          {{ form.cpf.label(class="label") }}
+          {{ form.cpf(class="input input-bordered w-full", placeholder="000.000.000-00") }}
+          {% if form.cpf.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ '; '.join(form.cpf.errors) }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Senha -->
+        <div class="form-control w-full">
+          {{ form.password.label(class="label") }}
+          <div class="relative">
+            {{ form.password(class="input input-bordered w-full pr-12") }}
+            <button type="button"
+                    class="btn btn-ghost btn-xs absolute right-2 top-2"
+                    onclick="togglePwd('password')">ver</button>
+          </div>
+          {% if form.password.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ '; '.join(form.password.errors) }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Confirmar senha -->
+        <div class="form-control w-full">
+          {{ form.confirm_password.label(class="label") }}
+          <div class="relative">
+            {{ form.confirm_password(class="input input-bordered w-full pr-12") }}
+            <button type="button"
+                    class="btn btn-ghost btn-xs absolute right-2 top-2"
+                    onclick="togglePwd('confirm_password')">ver</button>
+          </div>
+          {% if form.confirm_password.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ '; '.join(form.confirm_password.errors) }}</span>
+            </label>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center gap-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a class="link link-hover" href="{{ url_for('auth.login') }}">Já tenho conta</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function togglePwd(fieldName) {
+    const el = document.getElementsByName(fieldName)[0];
+    if (!el) return;
+    el.type = (el.type === 'password') ? 'text' : 'password';
+  }
+</script>
+
+{% endblock %}

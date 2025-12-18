@@ -1,0 +1,121 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero bg-brand-hero p-6 rounded-lg mb-6">
+  <div class="hero-content">
+    <div>
+      <h1 class="text-3xl font-bold">SI&T Web</h1>
+      <p class="mt-2 opacity-90">
+        Cadastre e gerencie Projetos, Clientes, Concessionários e Inventário de Equipamentos.
+      </p>
+      <div class="mt-4 flex gap-2">
+        <a href="{{ url_for('inventory.import_') }}" class="btn btn-secondary">Importar Inventário (XLSX)</a>
+        <a href="{{ url_for('inventory.create') }}" class="btn btn-primary">Novo Equipamento</a>
+        <a href="{{ url_for('inventory.list_') }}" class="btn">Ver Inventário</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+  <!-- Clientes -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Clientes</h2>
+      <p>Gerencie cadastros de clientes (PF/PJ).</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('clients.list') }}" class="btn">Listar</a>
+        <a href="{{ url_for('clients.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Concessionários -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Concessionários</h2>
+      <p>Cadastre e mantenha a rede de concessionários.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('dealers.list_') }}" class="btn">Listar</a>
+        <a href="{{ url_for('dealers.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Projetos -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Projetos</h2>
+      <p>Acompanhe os projetos e suas etapas.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('projects.list_') }}" class="btn">Listar</a>
+        <a href="{{ url_for('projects.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Status -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Status</h2>
+      <p>Gerencie o catálogo de status utilizados nos projetos.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('statuses.list_') }}" class="btn">Listar</a>
+        <a href="{{ url_for('statuses.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Equipamentos -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Equipamentos</h2>
+      <p>Cadastro e controle de equipamentos de teste.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('inventory.list_') }}" class="btn">Listar</a>
+        <a href="{{ url_for('inventory.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Áreas Funcionais -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Áreas Funcionais</h2>
+      <p>Gerencie as áreas funcionais da empresa.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('functional_areas.list') }}" class="btn">Listar</a>
+        <a href="{{ url_for('functional_areas.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Cargos -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Cargos</h2>
+      <p>Defina e gerencie os cargos da empresa.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('positions.list') }}" class="btn">Listar</a>
+        <a href="{{ url_for('positions.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+  <!-- Stakeholders -->
+  <article class="card bg-base-100 shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title">Stakeholders</h2>
+      <p>Gerencie os stakeholders envolvidos nos projetos.</p>
+      <div class="card-actions justify-end">
+        <a href="{{ url_for('stakeholders.list') }}" class="btn">Listar</a>
+        <a href="{{ url_for('stakeholders.create') }}" class="btn btn-primary">Novo</a>
+      </div>
+    </div>
+  </article>
+
+</section>
+
+{% endblock %}

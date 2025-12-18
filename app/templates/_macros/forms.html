@@ -1,0 +1,64 @@
+{# app/templates/_macros/forms.html #}
+
+{# Exibe erros inline num bloco simples #}
+{% macro _errors(field) -%}
+  {% if field.errors %}
+    <div class="mt-1" style="color:#b42318; font-size:.875rem;">
+      {{ field.errors | join(', ') }}
+    </div>
+  {% endif %}
+{%- endmacro %}
+
+{# Campo de entrada (String/Number/Email/Date...); segue padrão Equipamentos #}
+{% macro render_input(field, label=None, placeholder='') -%}
+  <label class="label" for="{{ field.id }}">{{ label or field.label.text }}</label>
+  {{ field(
+      class="input input-bordered w-full" + (' is-invalid' if field.errors else ''),
+      placeholder=placeholder
+  ) }}
+  {{ _errors(field) }}
+{%- endmacro %}
+
+{# TextArea no padrão Equipamentos #}
+{% macro render_textarea(field, label=None, rows=4, placeholder='') -%}
+  <label class="label" for="{{ field.id }}">{{ label or field.label.text }}</label>
+  {{ field(
+      class="textarea textarea-bordered w-full" + (' is-invalid' if field.errors else ''),
+      rows=rows,
+      placeholder=placeholder
+  ) }}
+  {{ _errors(field) }}
+{%- endmacro %}
+
+{# Select no padrão Equipamentos #}
+{% macro render_select(field, label=None) -%}
+  <label class="label" for="{{ field.id }}">{{ label or field.label.text }}</label>
+  {{ field(class="select select-bordered w-full" + (' is-invalid' if field.errors else '')) }}
+  {{ _errors(field) }}
+{%- endmacro %}
+
+{# Boolean (checkbox) simples; ajuste se tiver seu próprio estilo #}
+{% macro render_checkbox(field, label=None) -%}
+  <label style="display:flex; align-items:center; gap:.5rem;">
+    {{ field() }} {{ label or field.label.text }}
+  </label>
+  {{ _errors(field) }}
+{%- endmacro %}
+
+{# Alias de conveniência para manter compatibilidade com 'render_field' atual #}
+{% macro render_field(field, label=None, placeholder='') -%}
+  {% if field.type in ('TextAreaField', ) %}
+    {{ render_textarea(field, label=label, placeholder=placeholder) }}
+  {% elif field.type in ('SelectField', 'SelectMultipleField') %}
+    {{ render_select(field, label=label) }}
+  {% elif field.type in ('BooleanField',) %}
+    {{ render_checkbox(field, label=label) }}
+  {% else %}
+    {{ render_input(field, label=label, placeholder=placeholder) }}
+  {% endif %}
+{%- endmacro %}
+
+{# Botão de submit no padrão brand #}
+{% macro render_submit(submit_field, class_='btn btn-primary') -%}
+  {{ submit_field(class=class_) }}
+{%- endmacro %}

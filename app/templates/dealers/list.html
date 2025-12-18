@@ -1,0 +1,77 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="flex justify-between items-center mb-4">
+  <h5 class="text-lg font-semibold">Concessionários</h5>
+  <a href="{{ url_for('dealers.create') }}" class="btn btn-sm btn-primary">Novo Concessionário</a>
+</div>
+
+<form method="get" class="mb-4">
+  <div class="flex gap-2 items-end">
+    <div class="flex-1">
+      <label for="q" class="label">Busca</label>
+      <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
+             placeholder="Filtrar por nome ou razão social" />
+    </div>
+    <button type="submit" class="btn btn-outline">Buscar</button>
+    <a href="{{ url_for('dealers.list_') }}" class="btn btn-outline">Limpar</a>
+  </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    <div class="mb-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% if dealers %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+            <thead>
+                <tr>
+                    <th>Razão Social</th>
+                    <th>Endereço</th>
+                    <th>CNPJ</th>
+                    <th>Representante</th>
+                    <th>E-mail</th>
+                    <th>Telefone</th>
+                    <th>Função</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer in dealers %}
+                <tr>
+                    <td>{{ dealer.razao_social }}</td>
+                    <td>{{ dealer.endereco }}</td>
+                    <td>{{ dealer.cnpj }}</td>
+                    <td>{{ dealer.representante_nome }}</td>
+                    <td>{{ dealer.representante_email }}</td>
+                    <td>{{ dealer.representante_telefone }}</td>
+                    <td>{{ dealer.representante_funcao }}</td>
+                    <td>
+                        <div class="flex justify-end gap-2">
+                            <a href="{{ url_for('dealers.edit', dealer_id=dealer.id) }}" class="btn btn-sm btn-outline">Editar</a>
+                            <form action="{{ url_for('dealers.delete', dealer_id=dealer.id) }}" method="post">
+                                {{ delete_forms[dealer.id].csrf_token }}
+                                <button type="submit" class="btn btn-sm btn-outline btn-error"
+                                        onclick="return confirm('Confirma a exclusão deste concessionário?');">
+                                    Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">Nenhum concessionário encontrado.</div>
+{% endif %}
+{% endblock %}

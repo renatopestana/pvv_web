@@ -1,0 +1,76 @@
+{# app/templates/statuses/form.html #}
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h2 class="text-xl font-semibold mb-4">
+    {{ 'Novo Status' if mode == 'create' else 'Editar Status' }}
+  </h2>
+
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+
+    <!-- Nome -->
+    <label class="label" for="{{ form.nome.id }}">{{ form.nome.label.text }}</label>
+    {{ form.nome(class="input input-bordered w-full") }}
+    {% if form.nome.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.nome.errors) }}</div>
+    {% endif %}
+
+    <!-- Código -->
+    <label class="label mt-3" for="{{ form.codigo.id }}">{{ form.codigo.label.text }}</label>
+    {{ form.codigo(class="input input-bordered w-full") }}
+    {% if form.codigo.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.codigo.errors) }}</div>
+    {% endif %}
+
+    <!-- Cor -->
+    <label class="label mt-3" for="{{ form.cor.id }}">{{ form.cor.label.text }}</label>
+    {{ form.cor(class="input input-bordered w-32") }}
+    {% if form.cor.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.cor.errors) }}</div>
+    {% endif %}
+
+    <!-- Descrição -->
+    <label class="label mt-3" for="{{ form.descricao.id }}">{{ form.descricao.label.text }}</label>
+    {{ form.descricao(class="textarea textarea-bordered w-full", rows="3") }}
+    {% if form.descricao.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.descricao.errors) }}</div>
+    {% endif %}
+
+    <!-- Tipos de cadastro -->
+    <label class="label mt-3">{{ form.tipos_cadastro.label.text }}</label>
+    <div class="flex flex-col gap-2">
+      {% for subfield in form.tipos_cadastro %}
+        <label class="inline-flex items-center gap-2" for="{{ subfield.id }}">
+          {{ subfield(class="checkbox checkbox-primary") }}
+          <span>{{ subfield.label.text }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    {% if form.tipos_cadastro.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.tipos_cadastro.errors) }}</div>
+    {% endif %}
+
+    <!-- Ativo -->
+    <label class="label mt-3">{{ form.ativo.label.text }}</label>
+    <div class="flex items-center gap-6">
+      {% for subfield in form.ativo %}
+        <label class="inline-flex items-center gap-2" for="{{ subfield.id }}">
+          {{ subfield(class="radio radio-primary") }}
+          <span>{{ subfield.label.text }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    {% if form.ativo.errors %}
+      <div class="text-red-600 text-sm mt-1">{{ '; '.join(form.ativo.errors) }}</div>
+    {% endif %}
+
+    <!-- Ações -->
+    <div class="mt-6 flex items-center gap-3">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('statuses.list_') }}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="flex justify-between items-center mb-4">
+  <h5 class="text-lg font-semibold">Status</h5>
+  <a href="{{ url_for('statuses.create') }}" class="btn btn-sm btn-primary">Novo Status</a>
+</div>
+
+<form method="get" class="mb-4">
+  <div class="flex gap-2 items-end">
+    <div class="flex-1">
+      <label for="q" class="label">Busca</label>
+      <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
+             placeholder="Filtrar por nome, código ou descrição" />
+    </div>
+    <button type="submit" class="btn btn-outline">Buscar</button>
+    <a href="{{ url_for('statuses.list_') }}" class="btn btn-outline">Limpar</a>
+  </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    <div class="mb-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% if statuses %}
+  <div class="overflow-x-auto">
+    <table class="table table-zebra w-full">
+      <thead>
+        <tr>
+          <th style="width: 120px;">Código</th>
+          <th style="width: 200px;">Nome</th>
+          <th style="width: 160px;">Cor</th>
+          <th style="width: 160px;">Tipo de cadastro</th>
+          <th style="width: 110px;">Ativo</th>
+          <th>Descrição</th>
+          <th class="text-right" style="width: 200px;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in statuses %}
+          <tr>
+            <td>{{ s.codigo|default('') }}</td>
+            <td class="font-medium">{{ s.nome|default('') }}</td>
+            <td>
+              {% set hex = (s.cor or '')|trim %}
+              <div class="flex items-center gap-2">
+                {% if hex %}
+                  <span class="inline-block w-4 h-4 rounded" style="background-color: {{ hex }};"></span>
+                  <span class="font-mono text-sm">{{ hex }}</span>
+                {% else %}
+                  <span class="text-base-content/50">—</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              {% set tipos = csv_to_list(s.tipos_cadastro if s.tipos_cadastro is defined else '') %}
+              {% if tipos %}
+                <div class="flex flex-wrap gap-1">
+                  {% for key in tipos %}
+                    <span class="badge badge-ghost">{{ tipos_label_map.get(key, key) }}</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <span class="text-base-content/50">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% set active = s.ativo if s is not none and s.ativo is not none else (s.is_active if s is not none else True) %}
+              {% if active %}
+                <span class="badge badge-success">Ativo</span>
+              {% else %}
+                <span class="badge badge-ghost">Inativo</span>
+              {% endif %}
+            </td>
+            <td style="max-width: 0;">
+              <div class="truncate">{{ s.descricao|default('') }}</div>
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end gap-2">
+                <a href="{{ url_for('statuses.edit', status_id=s.id) }}" class="btn btn-sm btn-outline">Editar</a>
+                <form action="{{ url_for('statuses.delete', status_id=s.id) }}" method="post">
+                  {{ delete_forms[s.id].csrf_token }}
+                  <button type="submit" class="btn btn-sm btn-outline btn-error"
+                          onclick="return confirm('Confirma a exclusão deste status?');">
+                    Excluir
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">Nenhum status encontrado.</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <h3 class="text-xl font-semibold mb-4">Cadastro de Concessionário (Dealer)</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Razão Social -->
+      <div class="form-control w-full md:col-span-2">
+        {{ form.razao_social.label(class="label") }}
+        {{ form.razao_social(class="input input-bordered w-full") }}
+        {% if form.razao_social.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.razao_social.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- CNPJ -->
+      <div class="form-control w-full">
+        {{ form.cnpj.label(class="label") }}
+        {{ form.cnpj(class="input input-bordered w-full") }}
+        {% if form.cnpj.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.cnpj.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- E-mail do Representante -->
+      <div class="form-control w-full">
+        {{ form.representante_email.label(class="label") }}
+        {{ form.representante_email(class="input input-bordered w-full") }}
+        {% if form.representante_email.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.representante_email.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- Representante Legal -->
+      <div class="form-control w-full">
+        {{ form.representante_nome.label(class="label") }}
+        {{ form.representante_nome(class="input input-bordered w-full") }}
+        {% if form.representante_nome.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.representante_nome.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- Telefone do Representante -->
+      <div class="form-control w-full">
+        {{ form.representante_telefone.label(class="label") }}
+        {{ form.representante_telefone(class="input input-bordered w-full") }}
+        {% if form.representante_telefone.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.representante_telefone.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- Função/Cargo -->
+      <div class="form-control w-full md:col-span-2">
+        {{ form.representante_funcao.label(class="label") }}
+        {{ form.representante_funcao(class="input input-bordered w-full") }}
+        {% if form.representante_funcao.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.representante_funcao.errors) }}</span></label>
+        {% endif %}
+      </div>
+
+      <!-- Endereço -->
+      <div class="form-control w-full md:col-span-2">
+        {{ form.endereco.label(class="label") }}
+        {{ form.endereco(class="textarea textarea-bordered w-full", rows="3") }}
+        {% if form.endereco.errors %}
+          <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.endereco.errors) }}</span></label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-6">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+
+{% endblock %}

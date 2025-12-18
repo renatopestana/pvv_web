@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Posições (Cargos)</h3>
+    <a href="{{ url_for('positions.create') }}" class="btn btn-primary">Nova Posição</a>
+  </div>
+
+  <form class="row g-2 mb-3">
+    <div class="col-auto">
+      <input type="text" name="q" value="{{ q or '' }}" class="form-control" placeholder="Buscar por nome...">
+    </div>
+    <div class="col-auto">
+      <select name="area_id" class="form-select">
+        <option value="">— Todas as Áreas —</option>
+        {% for a in areas %}
+          <option value="{{ a.id }}" {% if area_id==a.id %}selected{% endif %}>{{ a.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+    </div>
+  </form>
+
+  <table class="table table-striped">
+    <thead>
+      <tr><th>Posição</th><th>Área</th><th>Criada em</th><th style="width:180px;">Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for p in positions %}
+      <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.functional_area.name }}</td>
+        <td>{{ p.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          <a href="{{ url_for('positions.edit', id=p.id) }}" class="btn btn-sm btn-warning">Editar</a>
+          <form action="{{ url_for('positions.delete', id=p.id) }}" method="post" style="display:inline;">
+            <button class="btn btn-sm btn-danger">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="text-muted">Nenhuma posição encontrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

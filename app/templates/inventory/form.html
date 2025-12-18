@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-5xl mx-auto">
+  <!-- Card escuro -->
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h3 class="text-xl font-semibold mb-4">Cadastro de Equipamento</h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Nome do Equipamento (Item) -->
+        <div class="form-control w-full md:col-span-2">
+          {{ form.name.label(class="label") }}
+          {{ form.name(class="input input-bordered w-full", placeholder="Ex: Display G5 Universal") }}
+          {% if form.name.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.name.errors) }}</span></label>
+          {% endif %}
+        </div>
+
+        <!-- PN -->
+        <div class="form-control w-full">
+          {{ form.pn.label(class="label") }}
+          {{ form.pn(class="input input-bordered w-full", placeholder="Ex: PN-12345") }}
+        </div>
+
+        <!-- Model Number -->
+        <div class="form-control w-full">
+          {{ form.model_number.label(class="label") }}
+          {{ form.model_number(class="input input-bordered w-full", placeholder="Ex: MDL-6789") }}
+        </div>
+
+        <!-- Nº de Série -->
+        <div class="form-control w-full">
+          {{ form.serial_number.label(class="label") }}
+          {{ form.serial_number(class="input input-bordered w-full", placeholder="Ex: SN-0001") }}
+        </div>
+
+        <!-- Machine Installed -->
+        <div class="form-control w-full">
+          {{ form.machine_installed.label(class="label") }}
+          {{ form.machine_installed(class="input input-bordered w-full") }}
+        </div>
+
+        <!-- Imagem de Referência -->
+        <div class="form-control w-full">
+          {{ form.image_ref.label(class="label") }}
+          {{ form.image_ref(class="input input-bordered w-full") }}
+        </div>
+
+        <!-- Patrimônio -->
+        <div class="form-control w-full">
+          {{ form.asset_tag.label(class="label") }}
+          {{ form.asset_tag(class="input input-bordered w-full") }}
+        </div>
+
+        <!-- Categoria -->
+        <div class="form-control w-full">
+          {{ form.category.label(class="label") }}
+          {{ form.category(class="input input-bordered w-full") }}
+        </div>
+
+        <!-- Marca -->
+        <div class="form-control w-full">
+          {{ form.brand.label(class="label") }}
+          {{ form.brand(class="input input-bordered w-full") }}
+        </div>
+
+        <!-- Owner -->
+        <div class="form-control w-full">
+          {{ form.owner_id.label(class="label") }}
+          {{ form.owner_id(class="select select-bordered w-full") }}
+        </div>
+
+        <!-- Current Responsible -->
+        <div class="form-control w-full">
+          {{ form.current_responsible_id.label(class="label") }}
+          {{ form.current_responsible_id(class="select select-bordered w-full") }}
+        </div>
+
+        <!-- Location (Cliente) -->
+        <div class="form-control w-full">
+          {{ form.location_id.label(class="label") }}
+          {{ form.location_id(class="select select-bordered w-full") }}
+        </div>
+
+        <!-- Projeto -->
+        <div class="form-control w-full">
+          {{ form.project_id.label(class="label") }}
+          {{ form.project_id(class="select select-bordered w-full") }}
+        </div>
+
+        <!-- Status -->
+        <div class="form-control w-full">
+          {{ form.status_id.label(class="label") }}
+          {{ form.status_id(class="select select-bordered w-full") }}
+        </div>
+
+        <!-- Observações -->
+        <div class="form-control w-full md:col-span-2">
+          {{ form.notes.label(class="label") }}
+          {{ form.notes(class="textarea textarea-bordered w-full", rows="4", placeholder="Observações adicionais...") }}
+        </div>
+      </div>
+
+      <div class="mt-6">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{# app/templates/projects/form.html #}
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" class="space-y-4">
+    {{ form.hidden_tag() }}
+
+    <h5 class="mb-4">{{ 'Novo Projeto' if mode == 'create' else 'Editar Projeto' }}</h5>
+
+    {{ form.name.label(class="label") }}
+    {{ form.name(class="input input-bordered w-full") }}
+    {% if form.name.errors %}
+        <div class="text-error text-sm">{{ '; '.join(form.name.errors) }}</div>
+    {% endif %}
+
+    {{ form.description.label(class="label mt-3") }}
+    {{ form.description(class="textarea textarea-bordered w-full", rows="4") }}
+    {% if form.description.errors %}
+        <div class="text-error text-sm">{{ '; '.join(form.description.errors) }}</div>
+    {% endif %}
+
+    {{ form.status_id.label(class="label mt-3") }}
+    {{ form.status_id(class="select select-bordered w-full") }}
+    {% if form.status_id.errors %}
+        <div class="text-error text-sm">{{ '; '.join(form.status_id.errors) }}</div>
+    {% endif %}
+
+    <div class="mt-4 flex gap-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('projects.list_') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

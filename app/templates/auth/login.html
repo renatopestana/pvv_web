@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% set register_url = url_for('auth.register') %}
+{% set reset_url = url_for('auth.reset_password') %}
+
+<div class="max-w-md mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <h3 class="text-xl font-semibold mb-6">Entrar na Plataforma</h3>
+
+      <!-- E-mail -->
+      <div class="form-control w-full">
+        {{ form.email.label(class="label") }}
+        {{ form.email(class="input input-bordered w-full", placeholder="seu@email.com") }}
+        {% if form.email.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ '; '.join(form.email.errors) }}</span>
+          </label>
+        {% endif %}
+      </div>
+
+      <!-- Senha -->
+      <div class="form-control w-full mt-4">
+        {{ form.password.label(class="label") }}
+        <div class="relative">
+          {{ form.password(class="input input-bordered w-full pr-12", placeholder="Sua senha") }}
+          <button type="button" class="btn btn-ghost btn-xs absolute right-2 top-2"
+                  onclick="togglePwd('password')">ver</button>
+        </div>
+        {% if form.password.errors %}
+          <label class="label">
+            <span class="label-text-alt text-error">{{ '; '.join(form.password.errors) }}</span>
+          </label>
+        {% endif %}
+      </div>
+
+      <!-- Lembrar de mim -->
+      <div class="form-control mt-4">
+        <label class="label cursor-pointer gap-3">
+          {{ form.remember(class="checkbox checkbox-primary") }}
+          <span class="label-text">{{ form.remember.label.text }}</span>
+        </label>
+      </div>
+
+      <!-- Ações -->
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ register_url }}" class="link link-hover">Criar conta</a>
+        <a href="{{ reset_url }}" class="link link-hover">Esqueci minha senha</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function togglePwd(fieldName) {
+    const el = document.getElementsByName(fieldName)[0];
+    if (!el) return;
+    el.type = (el.type === 'password') ? 'text' : 'password';
+  }
+</script>
+
+{% endblock %}

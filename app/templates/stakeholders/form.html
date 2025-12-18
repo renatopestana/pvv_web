@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_macros/forms.html" import render_field, render_select %}
+{% block content %}
+<div class="container mt-4">
+  <h3>{{ title }}</h3>
+  <form method="post" novalidate id="stakeholder-form">
+    {{ form.csrf_token }}
+    {{ render_field(form.name) }}
+    {{ render_select(form.tipo) }}
+
+    <div id="cliente-wrapper">
+      {{ render_select(form.client_id) }}
+    </div>
+    <div id="posicao-wrapper">
+      {{ render_select(form.position_id) }}
+    </div>
+
+    <div class="mt-3">
+      <a href="{{ url_for('stakeholders.list') }}" class="btn btn-secondary">Cancelar</a>
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+</div>
+
+<script>
+  function toggleFields() {
+    const tipo = document.getElementById('tipo').value;
+    const clienteWrapper = document.getElementById('cliente-wrapper');
+    const posicaoWrapper = document.getElementById('posicao-wrapper');
+
+    if (tipo === 'EXTERNO') {
+      clienteWrapper.style.display = '';
+      posicaoWrapper.style.display = 'none';
+      // Zera posição quando EXTERNO
+      const posSelect = document.querySelector('#posicao-wrapper select');
+      if (posSelect) posSelect.value = 0;
+    } else if (tipo === 'INTERNO') {
+      clienteWrapper.style.display = 'none';
+      posicaoWrapper.style.display = '';
+      // Zera cliente quando INTERNO
+      const cliSelect = document.querySelector('#cliente-wrapper select');
+      if (cliSelect) cliSelect.value = 0;
+    } else {
+      clienteWrapper.style.display = 'none';
+      posicaoWrapper.style.display = 'none';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', toggleFields);
+  document.getElementById('tipo').addEventListener('change', toggleFields);
+</script>
+{% endblock %}
