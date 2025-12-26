@@ -3,6 +3,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Optional
 
+
+class DeleteStakeholderForm(FlaskForm):
+    submit = SubmitField('Excluir')
+
+
 class StakeholderForm(FlaskForm):
     name = StringField(
         'Nome',
@@ -23,19 +28,28 @@ class StakeholderForm(FlaskForm):
         if not super().validate(extra_validators=extra_validators):
             return False
 
-        if self.tipo.data == 'EXTERNO':
-            if not self.client_id.data:
+        tipo = self.tipo.data
+        cli  = self.client_id.data
+        pos  = self.position_id.data
+
+        # Trata 0 como "não selecionado"
+        cli_is_empty = (cli in (None, 0))
+        pos_is_empty = (pos in (None, 0))
+
+
+        if tipo == 'EXTERNO':
+            if cli_is_empty:
                 self.client_id.errors.append('Selecione o Cliente para stakeholder Externo.')
                 return False
-            if self.position_id.data:
+            if not pos_is_empty:
                 self.position_id.errors.append('Stakeholder Externo não deve ter Posição.')
                 return False
 
-        elif self.tipo.data == 'INTERNO':
-            if not self.position_id.data:
+        elif tipo == 'INTERNO':
+            if pos_is_empty:
                 self.position_id.errors.append('Selecione a Posição para stakeholder Interno.')
                 return False
-            if self.client_id.data:
+            if not cli_is_empty:
                 self.client_id.errors.append('Stakeholder Interno não deve ter Cliente.')
                 return False
 

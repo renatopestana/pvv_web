@@ -2,8 +2,9 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from app.extensions import db
 from app.models import Stakeholder, Client, Position
-from app.forms import StakeholderForm
+from app.forms.stakeholders import StakeholderForm, DeleteStakeholderForm
 from . import bp_stakeholders
+
 
 # app/blueprints/stakeholders/routes.py
 def _fill_choices(form):
@@ -23,34 +24,64 @@ def _fill_choices(form):
 @login_required
 def list():
     q = request.args.get('q', '').strip()
-    tipo = request.args.get('tipo', '').strip().upper()
+    tipo = (request.args.get('tipo', '') or '').strip().upper()
+
     query = Stakeholder.query
     if q:
         query = query.filter(Stakeholder.name.ilike(f'%{q}%'))
     if tipo in ('INTERNO', 'EXTERNO'):
         query = query.filter(Stakeholder.tipo == tipo)
+
     stakeholders = query.order_by(Stakeholder.created_at.desc()).all()
-    return render_template('stakeholders/list.html', stakeholders=stakeholders, q=q, tipo=tipo)
+
+    # >>> NOVO: forma segura de disponibilizar um formulário de deleção por linha
+    delete_forms = {s.id: DeleteStakeholderForm() for s in stakeholders}
+
+    return render_template(
+        'stakeholders/list.html',
+        stakeholders=stakeholders,
+        q=q,
+        tipo=tipo,
+        delete_forms=delete_forms,  # <<< envia ao template
+    )
+
 
 @bp_stakeholders.route('/new', methods=['GET', 'POST'])
 @login_required
 def create():
+    print("Creating stakeholder")
     form = StakeholderForm()
     _fill_choices(form)
+
     if request.method == 'POST':
-        # Converte "0" para None para passar na validação
-        if form.client_id.data == 0:
-            form.client_id.data = None
-        if form.position_id.data == 0:
-            form.position_id.data = None
+        print("Form submitted")
+
+        print("DATA:", form.tipo.data, form.client_id.data, form.position_id.data)
+        print("ERRORS:", form.errors)
+
+        # *** Normalização pelo tipo (zera o campo "não usado") ***
+        if form.tipo.data == 'EXTERNO':
+            form.position_id.data = 0
+        elif form.tipo.data == 'INTERNO':
+            form.client_id.data = 0
+
 
     if form.validate_on_submit():
-        sh = Stakeholder(
-            name=form.name.data.strip(),
-            tipo=form.tipo.data,
-            client_id=form.client_id.data if form.tipo.data == 'EXTERNO' else None,
-            position_id=form.position_id.data if form.tipo.data == 'INTERNO' else None
-        )
+        # Normaliza placeholders: 0 -> None na persistência
+        client_id = form.client_id.data if form.client_id.data != 0 else None
+        position_id = form.position_id.data if form.position_id.data != 0 else None
+
+        sh = Stakeholder(name=form.name.data.strip())
+
+        if form.tipo.data == 'INTERNO':
+            sh.position_id = position_id   # primeiro define a posição (requerida)
+            sh.client_id = None            # garante ausência de cliente
+            sh.tipo = 'INTERNO'            # por último define o tipo
+        else:  # 'EXTERNO'
+            sh.client_id = client_id       # primeiro define o cliente (requerido)
+            sh.position_id = None          # garante ausência de posição
+            sh.tipo = 'EXTERNO'            # por último define o tipo
+
         db.session.add(sh)
         try:
             db.session.commit()
@@ -59,7 +90,9 @@ def create():
         except Exception as e:
             db.session.rollback()
             flash(f'Erro ao salvar: {e}', 'danger')
+
     return render_template('stakeholders/form.html', form=form, title='Novo Stakeholder')
+
 
 @bp_stakeholders.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -93,6 +126,7 @@ def edit(id):
             form.position_id.data = 0
 
     return render_template('stakeholders/form.html', form=form, title='Editar Stakeholder')
+
 
 @bp_stakeholders.route('/<int:id>/delete', methods=['POST'])
 @login_required

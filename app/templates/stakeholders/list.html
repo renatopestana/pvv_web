@@ -1,57 +1,89 @@
+
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>Stakeholders</h3>
-    <a href="{{ url_for('stakeholders.create') }}" class="btn btn-primary">Novo Stakeholder</a>
-  </div>
 
-  <form class="row g-2 mb-3">
-    <div class="col-auto">
-      <input type="text" name="q" value="{{ q or '' }}" class="form-control" placeholder="Buscar por nome...">
+<div class="flex justify-between items-center mb-4">
+  <h5 class="text-lg font-semibold">Stakeholders</h5>
+  <a href="{{ url_for('stakeholders.create') }}" class="btn btn-primary">Novo Stakeholder</a>
+</div>
+
+<form method="get" class="mb-4">
+  <div class="flex gap-2 items-end">
+    <div class="flex-1">
+      <label for="q" class="label">Busca</label>
+      <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
+            placeholder="Buscar por nome..." />
     </div>
-    <div class="col-auto">
-      <select name="tipo" class="form-select">
-        <option value="">— Todos —</option>
-        <option value="INTERNO" {% if tipo=='INTERNO' %}selected{% endif %}>Interno</option>
-        <option value="EXTERNO" {% if tipo=='EXTERNO' %}selected{% endif %}>Externo</option>
+    <div class="flex-1">
+      <label for="tipo" class="label">Tipo</label>
+      <select id="tipo" name="tipo" class="select select-bordered w-full">
+        <option value="">Todos</option>
+        <option value="INTERNO" {{ 'selected' if tipo=='INTERNO' }}>Interno</option>
+        <option value="EXTERNO" {{ 'selected' if tipo=='EXTERNO' }}>Externo</option>
       </select>
     </div>
-    <div class="col-auto">
-      <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
-    </div>
-  </form>
+    <button type="submit" class="btn btn-outline">Buscar</button>
+    <a href="{{ url_for('stakeholders.list') }}" class="btn btn-outline">Limpar</a>
+  </div>
+</form>
 
-  <table class="table table-striped">
+{% if stakeholders and stakeholders|length > 0 %}
+  <table class="table">
     <thead>
-      <tr><th>Nome</th><th>Tipo</th><th>Vínculo</th><th>Criado em</th><th style="width:180px;">Ações</th></tr>
+      <tr>
+        <th>Nome</th>
+        <th>Tipo</th>
+        <th>Relacionamento</th>
+        <th>Criado em</th>
+        <th style="width:180px;">Ações</th>
+      </tr>
     </thead>
     <tbody>
       {% for s in stakeholders %}
       <tr>
         <td>{{ s.name }}</td>
-        <td>{{ 'Interno' if s.tipo=='INTERNO' else 'Externo' }}</td>
+
         <td>
-          {% if s.tipo=='INTERNO' and s.position %}
-            {{ s.position.name }} ({{ s.position.functional_area.name }})
-          {% elif s.tipo=='EXTERNO' and s.client %}
-            {{ s.client.name }}
-          {% else %}
-            <span class="text-muted">—</span>
+          {% if s.tipo == 'INTERNO' %}Interno
+          {% elif s.tipo == 'EXTERNO' %}Externo
+          {% else %}—
           {% endif %}
         </td>
-        <td>{{ s.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+
+        <td>
+          {% if s.tipo == 'INTERNO' %}
+            {% if s.position %}
+              {{ s.position.name }}
+              {% if s.position.functional_area %}
+                ({{ s.position.functional_area.name }})
+              {% endif %}
+            {% else %}
+              —
+            {% endif %}
+          {% elif s.tipo == 'EXTERNO' %}
+            {% if s.client %}
+              {{ s.client.name }} {# Client.name é uma property que retorna nome_razao #}
+            {% else %}
+              —
+            {% endif %}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+
+        <td>{{ s.created_at.strftime('%d/%m/%Y %H:%M') if s.created_at }}</td>
         <td>
           <a href="{{ url_for('stakeholders.edit', id=s.id) }}" class="btn btn-sm btn-warning">Editar</a>
           <form action="{{ url_for('stakeholders.delete', id=s.id) }}" method="post" style="display:inline;">
-            <button class="btn btn-sm btn-danger">Excluir</button>
+            <button class="btn btn-sm btn-outline">Excluir</button>
           </form>
+          
         </td>
       </tr>
-      {% else %}
-      <tr><td colspan="5" class="text-muted">Nenhum stakeholder encontrado.</td></tr>
       {% endfor %}
     </tbody>
   </table>
-</div>
+{% else %}
+  <p>Nenhum stakeholder encontrado.</p>
+{% endif %}
 {% endblock %}

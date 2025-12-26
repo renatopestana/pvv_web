@@ -3,8 +3,11 @@
 {% block content %}
 <div class="container mt-4">
   <h3>{{ title }}</h3>
-  <form method="post" novalidate id="stakeholder-form">
-    {{ form.csrf_token }}
+
+  <!-- action aponta para a mesma rota; hidden_tag inclui o csrf_token -->
+  <form method="post" action="{{ request.path }}" id="stakeholder-form" novalidate>
+
+    {{ form.hidden_tag() }}
     {{ render_field(form.name) }}
     {{ render_select(form.tipo) }}
 
@@ -16,36 +19,40 @@
     </div>
 
     <div class="mt-3">
-      <a href="{{ url_for('stakeholders.list') }}" class="btn btn-secondary">Cancelar</a>
       {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('stakeholders.list') }}" class="btn btn-secondary">Voltar</a>
     </div>
   </form>
 </div>
 
 <script>
-  function toggleFields() {
-    const tipo = document.getElementById('tipo').value;
+  (function () {
+    const tipoEl = document.getElementById('{{ form.tipo.id }}');
     const clienteWrapper = document.getElementById('cliente-wrapper');
     const posicaoWrapper = document.getElementById('posicao-wrapper');
+    const cliSelect = document.getElementById('{{ form.client_id.id }}');
+    const posSelect = document.getElementById('{{ form.position_id.id }}');
 
-    if (tipo === 'EXTERNO') {
-      clienteWrapper.style.display = '';
-      posicaoWrapper.style.display = 'none';
-      // Zera posição quando EXTERNO
-      const posSelect = document.querySelector('#posicao-wrapper select');
-      if (posSelect) posSelect.value = 0;
-    } else if (tipo === 'INTERNO') {
-      clienteWrapper.style.display = 'none';
-      posicaoWrapper.style.display = '';
-      // Zera cliente quando INTERNO
-      const cliSelect = document.querySelector('#cliente-wrapper select');
-      if (cliSelect) cliSelect.value = 0;
-    } else {
-      clienteWrapper.style.display = 'none';
-      posicaoWrapper.style.display = 'none';
+    function toggleFields() {
+      const tipo = tipoEl ? tipoEl.value : '';
+      if (tipo === 'EXTERNO') {
+        clienteWrapper.style.display = '';
+        posicaoWrapper.style.display = 'none';
+        if (posSelect) posSelect.value = '0';  // placeholder 0
+      } else if (tipo === 'INTERNO') {
+        clienteWrapper.style.display = 'none';
+        posicaoWrapper.style.display = '';
+        if (cliSelect) cliSelect.value = '0';
+      } else {
+        clienteWrapper.style.display = 'none';
+        posicaoWrapper.style.display = 'none';
+        if (cliSelect) cliSelect.value = '0';
+        if (posSelect) posSelect.value = '0';
+      }
     }
-  }
-  document.addEventListener('DOMContentLoaded', toggleFields);
-  document.getElementById('tipo').addEventListener('change', toggleFields);
+
+    document.addEventListener('DOMContentLoaded', toggleFields);
+    if (tipoEl) tipoEl.addEventListener('change', toggleFields);
+  })();
 </script>
 {% endblock %}
