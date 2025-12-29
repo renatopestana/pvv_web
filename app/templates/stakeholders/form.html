@@ -1,28 +1,29 @@
 {% extends "base.html" %}
 {% from "_macros/forms.html" import render_field, render_select %}
 {% block content %}
-<div class="container mt-4">
-  <h3>{{ title }}</h3>
 
-  <!-- action aponta para a mesma rota; hidden_tag inclui o csrf_token -->
-  <form method="post" action="{{ request.path }}" id="stakeholder-form" novalidate>
+<div class="max-w-5xl mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <h3 class="text-xl font-semibold mb-4">{{ title }}</h3>
+    <form method="post" action="{{ request.path }}" id="stakeholder-form" novalidate>
 
-    {{ form.hidden_tag() }}
-    {{ render_field(form.name) }}
-    {{ render_select(form.tipo) }}
+      {{ form.hidden_tag() }}
+      {{ render_field(form.name) }}
+      {{ render_select(form.tipo) }}
 
-    <div id="cliente-wrapper">
-      {{ render_select(form.client_id) }}
-    </div>
-    <div id="posicao-wrapper">
-      {{ render_select(form.position_id) }}
-    </div>
+      <div id="cliente-wrapper">
+        {{ render_select(form.client_id) }}
+      </div>
+      <div id="posicao-wrapper">
+        {{ render_select(form.position_id) }}
+      </div>
 
-    <div class="mt-3">
-      {{ form.submit(class="btn btn-primary") }}
-      <a href="{{ url_for('stakeholders.list') }}" class="btn btn-secondary">Voltar</a>
-    </div>
-  </form>
+      <div class="mt-6 flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('stakeholders.list') }}" class="btn btn-secondary">Voltar</a>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script>

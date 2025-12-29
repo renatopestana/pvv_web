@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, jsonify, render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from ...extensions import db
 from ...models import Client
@@ -18,6 +18,13 @@ def list_():
     return render_template("clients/list.html", clients=clients, q=q, delete_forms=delete_forms)
 
 
+@clients_bp.get('/<int:id>/org')
+@login_required
+def client_org(id):
+    c = db.session.query(Client).get_or_404(id)
+    return jsonify({'org_id': c.org_id or ''})
+
+
 @clients_bp.route("/novo", methods=["GET", "POST"], endpoint="create")
 @login_required
 def create():
@@ -26,6 +33,7 @@ def create():
         c = Client(
             tipo=form.tipo.data,
             nome_razao=form.nome_razao.data.strip(),
+            org_id=form.org_id.data,
             endereco=form.endereco.data.strip(),
             nacionalidade=form.nacionalidade.data,
             estado_civil=form.estado_civil.data,
@@ -47,6 +55,7 @@ def create():
         return redirect(url_for("clients.list"))
     return render_template("clients/form.html", form=form, mode="create")
 
+
 @clients_bp.route("/<int:client_id>/editar", methods=["GET", "POST"], endpoint="edit")
 @login_required
 def edit(client_id):
@@ -58,6 +67,7 @@ def edit(client_id):
         flash("Cliente atualizado.", "success")
         return redirect(url_for("clients.list"))
     return render_template("clients/form.html", form=form, mode="edit", client=c)
+
 
 @clients_bp.route("/<int:client_id>/excluir", methods=["POST"], endpoint="delete")
 @login_required

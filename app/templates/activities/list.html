@@ -1,0 +1,147 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="flex justify-between items-center mb-4">
+  <h5 class="text-lg font-semibold">Atividades</h5>
+  <a href="{{ url_for('activities.create') }}" class="btn btn-primary">Nova Atividade</a>
+</div>
+
+<!-- Filtros (texto + owner + executor + projeto + status + ambiente) -->
+<form method="get" class="mb-4">
+  <div class="flex gap-2 items-end">
+    <div class="flex-1">
+      <label for="q" class="label">Busca</label>
+      <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
+              placeholder="Filtrar por descrição" />
+    </div>
+    <button class="btn btn-outline" type="submit">Buscar</button>
+    <a href="{{ url_for('activities.list') }}" class="btn btn-outline">Limpar</a>  
+  </div>
+
+  <div class="flex gap-2 items-end">
+    <div class="flex-1">
+      <label for="owner_id" class="label">Responsável</label>
+      <select id="owner_id" name="owner_id" class="select select-bordered w-full">
+        <option value="">Responsável (todos)</option>
+        {% for u in owners %}
+          <option value="{{ u.id }}" {{ 'selected' if owner_id==u.id }}>{{ u.full_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-1">
+      <label for="executor_id" class="label">Executor</label>
+      <select id="executor_id" name="executor_id" class="select select-bordered w-full">
+        <option value="">Executor (todos)</option>
+        {% for u in executors %}
+          <option value="{{ u.id }}" {{ 'selected' if executor_id==u.id }}>{{ u.full_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-1">
+      <label for="project_id" class="label">Projeto</label>
+      <select id="project_id" name="project_id" class="select select-bordered w-full">
+        <option value="">Projeto (todos)</option>
+        {% for p in projects %}
+          <option value="{{ p.id }}" {{ 'selected' if project_id==p.id }}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-1">
+      <label for="status_id" class="label">Status</label>
+      <select id="status_id" name="status_id" class="select select-bordered w-full">
+        <option value="">Status (todos)</option>
+        {% for s in statuses %}
+          <option value="{{ s.id }}" {{ 'selected' if status_id==s.id }}>{{ s.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex-1">
+      <label for="environment" class="label">Ambiente</label>
+      <select id="environment" name="environment" class="select select-bordered w-full">
+        <option value="">Ambiente (todos)</option>
+        <option value="SIMULADO"  {{ 'selected' if environment=='SIMULADO' }}>Simulado</option>
+        <option value="CONTROLADO"{{ 'selected' if environment=='CONTROLADO' }}>Controlado</option>
+        <option value="REAL"      {{ 'selected' if environment=='REAL' }}>Real</option>
+      </select>
+    </div>
+  </div>
+</form>
+
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% if activities and activities|length > 0 %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th>Tipo / Relacionamento</th>
+        <th>Owner / Executor</th>
+        <th>Projeto</th>
+        <th>Período</th>
+        <th>Status</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in activities %}
+      <tr>
+        <!-- Descrição -->
+        <td>{{ a.description }}</td>
+
+        <!-- Tipo / Relacionamento (similar à lista de stakeholders) -->
+        <td>
+          {% if a.environment == 'SIMULADO' %}Simulado
+          {% elif a.environment == 'CONTROLADO' %}Controlado
+          {% elif a.environment == 'REAL' %}Real
+          {% else %}—{% endif %}
+
+          {% if a.client or a.dealer %}
+            <br>
+            {% if a.client %}Cliente: {{ a.client.name }}{% endif %}
+            {% if a.dealer %}{% if a.client %} • {% endif %}Concessionário: {{ a.dealer.razao_social }}{% endif %}
+          {% endif %}
+        </td>
+
+        <!-- Owner / Executor -->
+        <td>
+          {% if a.owner_user %}{{ a.owner_user.full_name }}{% else %}—{% endif %}
+          <br>
+          {% if a.executor_user %}{{ a.executor_user.full_name }}{% else %}—{% endif %}
+        </td>
+
+        <!-- Projeto -->
+        <td>{{ a.project.name if a.project }}</td>
+
+        <!-- Período -->
+        <td>
+          {{ a.start_date.strftime('%d/%m/%Y') if a.start_date }}
+          {% if a.end_date %}– {{ a.end_date.strftime('%d/%m/%Y') }}{% endif %}
+        </td>
+
+        <!-- Status -->
+        <td>{{ a.status.nome if a.status }}</td>
+
+        <!-- Ações -->
+        <td class="text-end">
+          {{ url_for('activities.edit', activity_id=a.id) }} class="btn btn-sm btn-primary">Editar</a>
+          {{ url_for('activities.delete', activity_id=a.id) }} class="btn btn-sm btn-danger">Excluir</a>
+          <form method="post" action="{{ url_for('activities.delete', activity_id=a.id) }}">
+            {{ csrf_token() }}
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Excluir a atividade?')">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Nenhuma atividade encontrada.</p>
+{% endif %}
+{% endblock %}

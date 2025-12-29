@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+
   <form method="post" novalidate>
     {{ form.hidden_tag() }}
 
@@ -72,10 +74,12 @@
       </div>
     </div>
 
-    <div class="mt-6">
+    <div class="mt-6 flex gap-2">
       {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('dealers.list_') }}" class="btn btn-secondary">Voltar</a>
     </div>
   </form>
+  </div>
 </div>
 
 {% endblock %}

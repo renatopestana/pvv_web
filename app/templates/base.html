@@ -43,11 +43,12 @@
         <a href="{{ url_for('functional_areas.list') }}" class="btn btn-ghost">Áreas Funcionais</a>
         <a href="{{ url_for('positions.list') }}" class="btn btn-ghost">Cargos</a>
         <a href="{{ url_for('stakeholders.list') }}" class="btn btn-ghost">Stakeholders</a>
+        <a href="{{ url_for('activities.list') }}" class="btn btn-ghost">Atividades</a>
         <div class="flex-1"></div>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost">Sair</a>
+        <a href="{{ url_for('auth_local.logout') }}" class="btn btn-ghost">Sair</a>
       {% else %}
-        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Entrar</a>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-ghost">Criar conta</a>
+        <a href="{{ url_for('auth_local.login') }}" class="btn btn-ghost">Entrar</a>
+        <a href="{{ url_for('auth_local.register') }}" class="btn btn-ghost">Criar conta</a>
       {% endif %}
     </div>
   </header>

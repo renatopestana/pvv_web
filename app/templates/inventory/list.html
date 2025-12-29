@@ -11,7 +11,7 @@
     <div class="flex-1">
       <label for="q" class="label">Busca</label>
       <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
-             placeholder="Filtrar por descrição" />
+            placeholder="Filtrar por nome, modelo ou serial" />
     </div>
     <button type="submit" class="btn btn-outline">Buscar</button>
     <a href="{{ url_for('inventory.list_') }}" class="btn btn-outline">Limpar</a>

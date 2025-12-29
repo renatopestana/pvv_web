@@ -47,6 +47,7 @@ class Client(TimestampMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(2), nullable=False)  # PF ou PJ
+    org_id = db.Column(db.String(64), unique=False, index=True, nullable=True)
 
     # Comuns
     nome_razao = db.Column(db.String(180), nullable=False, index=True)
@@ -301,3 +302,78 @@ class Stakeholder(db.Model):
             if position_id is not None:
                 raise ValueError("Stakeholder EXTERNO não deve referenciar Posição.")
         return value
+
+
+# ============================
+# Activities
+# ============================
+
+activity_equipment = db.Table(
+    'activity_equipment',
+    db.Column('activity_id', db.Integer, db.ForeignKey('activities.id', ondelete='CASCADE'), primary_key=True),
+    db.Column('equipment_id', db.Integer, db.ForeignKey('equipment.id', ondelete='CASCADE'), primary_key=True),
+    UniqueConstraint('activity_id', 'equipment_id', name='uq_activity_equipment')
+)
+
+class Activity(db.Model):
+    __tablename__ = 'activities'
+
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(400), nullable=False)
+
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='SET NULL'), nullable=False)
+    project = db.relationship('Project', lazy='selectin')
+
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
+    duration_hours = db.Column(db.Float, nullable=True)
+
+    owner_user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=False)
+    owner_user = db.relationship('User', foreign_keys=[owner_user_id], lazy='selectin')
+
+    executor_user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=False)
+    executor_user = db.relationship('User', foreign_keys=[executor_user_id], lazy='selectin')
+
+    environment = db.Column(
+        db.Enum('SIMULADO', 'CONTROLADO', 'REAL', name='tipo_ambiente'),
+        nullable=False
+    )
+
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id', ondelete='SET NULL'), nullable=True)
+    client = db.relationship('Client', lazy='selectin')
+
+    dealer_id = db.Column(db.Integer, db.ForeignKey('dealers.id', ondelete='SET NULL'), nullable=True)
+    dealer = db.relationship('Dealer', lazy='selectin')
+
+    status_id = db.Column(db.Integer, db.ForeignKey('statuses.id', ondelete='SET NULL'), nullable=False)
+    status = db.relationship('Status', lazy='selectin')
+
+    # Máquinas envolvidas (CSV de VIN/Chassi)
+    machines_text = db.Column(db.Text, nullable=True)
+
+    # Equipamentos ligados à atividade
+    equipments = db.relationship(
+        'Equipment',
+        secondary=activity_equipment,
+        lazy='selectin',
+        backref=db.backref('activities', lazy='selectin')
+    )
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint(
+            "(environment IN ('SIMULADO','CONTROLADO','REAL'))",
+            name='ck_activities_environment'
+        ),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Activity id={self.id} project_id={self.project_id} owner={self.owner_user_id} executor={self.executor_user_id}>"
+
+    @property
+    def machines_list(self) -> list[str]:
+        if not self.machines_text:
+            return []
+        return [v.strip() for v in self.machines_text.split(',') if v.strip()]

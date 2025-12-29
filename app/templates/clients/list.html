@@ -23,7 +23,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Tipo</th>
+          <th>Org ID</th>
           <th>Nome/Razão Social</th>
           <th>Endereço</th>
           <th>CPF/CNPJ</th>
@@ -35,7 +35,7 @@
       <tbody>
         {% for client in clients %}
         <tr>
-          <td>{{ client.tipo }}</td>
+          <td>{{ client.org_id }}</td>
           <td>{{ client.nome_razao }}</td>
           <td class="text-truncate" style="max-width: 200px;">{{ client.endereco }}</td>
           <td>{{ client.cpf or client.cnpj }}</td>

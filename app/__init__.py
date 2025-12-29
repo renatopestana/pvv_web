@@ -1,6 +1,7 @@
 # app/__init__.py
 from flask import Flask
 from .extensions import db, migrate, login_manager, csrf
+from app.utils.oc_callback_bridge import start_oc_callback_bridge
 
 
 def create_app(config_object="config.DevConfig"):
@@ -26,7 +27,7 @@ def create_app(config_object="config.DevConfig"):
     login_manager.login_message = "Por favor, faça login para acessar a página."
 
     # Importa e registra blueprints APÓS inicializar extensões e carregar models
-    from .blueprints.auth import auth_bp
+
     from .blueprints.clients import clients_bp
     from .blueprints.dealers import dealers_bp
     from .blueprints.projects import projects_bp
@@ -36,8 +37,11 @@ def create_app(config_object="config.DevConfig"):
     from .blueprints.functional_areas import bp_functional_areas
     from .blueprints.positions import bp_positions
     from .blueprints.stakeholders import bp_stakeholders
+    from .blueprints.activities.routes import bp_activities
+    from .blueprints.oc_api.routes import bp_oc
+    from app.blueprints.auth.routes import auth_local_bp
+    from app.blueprints.auth_oidc.routes import bp_auth_oidc
 
-    app.register_blueprint(auth_bp)
     app.register_blueprint(clients_bp, url_prefix="/clientes")
     app.register_blueprint(dealers_bp, url_prefix="/concessionarios")
     app.register_blueprint(projects_bp, url_prefix="/projetos")
@@ -47,5 +51,14 @@ def create_app(config_object="config.DevConfig"):
     app.register_blueprint(bp_positions, url_prefix="/cargos")
     app.register_blueprint(bp_stakeholders, url_prefix="/stakeholders")
     app.register_blueprint(main_bp, url_prefix="/")
+    app.register_blueprint(bp_activities)
+    app.register_blueprint(bp_oc)
+    app.register_blueprint(auth_local_bp)
+    app.register_blueprint(bp_auth_oidc)
 
+    try:
+        start_oc_callback_bridge(host="127.0.0.1", port=9090)
+    except Exception as e:
+        app.logger.warning(f"OC bridge not started: {e}")
     return app
+

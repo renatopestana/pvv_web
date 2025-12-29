@@ -66,7 +66,7 @@ def create():
         p = Project(
             name=name,
             description=form.description.data,
-            status_id=status_id,   # NOVO
+            status_id=status_id,
         )
         db.session.add(p)
         db.session.commit()

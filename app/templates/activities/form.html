@@ -1,0 +1,118 @@
+
+{% extends "base.html" %}
+{% from "_macros/forms.html" import render_field, render_select %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <h3 class="text-xl font-semibold mb-4">{{ title }}</h3>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;">
+        <div style="grid-column:span 6;">{{ render_select(form.project_id) }}</div>
+        <div style="grid-column:span 6;">{{ render_select(form.environment) }}</div>
+      </div>
+
+      <div class="grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;">
+        <div style="grid-column:span 2;">{{ render_field(form.start_date) }}</div>
+        <div style="grid-column:span 2;">{{ render_field(form.end_date) }}</div>
+        <div style="grid-column:span 2;">{{ render_field(form.duration_hours) }}</div>
+        <div style="grid-column:span 3;">{{ render_select(form.owner_user_id) }}</div>
+        <div style="grid-column:span 3;">{{ render_select(form.executor_user_id) }}</div>
+      </div>
+
+      {{ render_field(form.description) }}
+
+      <div class="grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;">
+        <div style="grid-column:span 6;">{{ render_select(form.client_id) }}</div>
+        <div style="grid-column:span 6;">{{ render_select(form.dealer_id) }}</div>
+      </div>
+
+     {{ render_select(form.equipment_ids) }}
+
+      <!-- Máquinas via API (multi-select) -->
+      {{ render_select(form.machine_serials, label="Máquinas (VIN/Chassi)") }}
+
+      {{ render_select(form.status_id) }}
+
+      <div class="mt-6 flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('activities.list') }}" class="btn btn-secondary">Voltar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+(async function () {
+  const clientSelect   = document.getElementById('{{ form.client_id.id }}');
+  const machinesSelect = document.getElementById('{{ form.machine_serials.id }}');
+
+  async function fetchClientOrgId(clientId) {
+    if (!clientId || clientId === '0') return '';
+    const base = '{{ url_for("clients.client_org", id=0) }}';
+    const url  = base.replace('/0/', `/${clientId}/`);
+    const res  = await fetch(url, { method:'GET' });
+    if (!res.ok) return '';
+    const data = await res.json();
+    return data.org_id || '';
+  }
+
+  async function loadMachines(orgId) {
+    machinesSelect.innerHTML = '';
+    if (!orgId) return;
+
+    const ocUrl = new URL('{{ url_for("oc.machines") }}', window.location.origin);
+    ocUrl.searchParams.set('org_id', orgId);
+
+    const loadingOpt = document.createElement('option');
+    loadingOpt.textContent = 'Carregando...';
+    machinesSelect.appendChild(loadingOpt);
+
+    try {
+      const res = await fetch(ocUrl.toString(), { method:'GET' });
+
+      if (res.status === 401) {
+        // sem token: força 2ª etapa de login Okta/Deere
+        const loginUrl = new URL('{{ url_for("auth_oidc.login") }}', window.location.origin);
+        loginUrl.searchParams.set('next', window.location.pathname); // volta para a mesma página
+        window.location.href = loginUrl.toString();
+        return;
+      }
+
+      if (!res.ok) throw new Error('Falha ao consultar máquinas na API');
+      const data = await res.json();
+      const arr  = data.values || [];
+
+      machinesSelect.innerHTML = '';
+      for (const m of arr) {
+        const opt = document.createElement('option');
+        opt.value = m.serialNumber;
+        const parts = [m.type, m.model, m.year, m.name, m.serialNumber].filter(Boolean);
+        opt.textContent = parts.join(' • ');
+        machinesSelect.appendChild(opt);
+      }
+      machinesSelect.setAttribute('multiple', 'multiple');
+    } catch (e) {
+      machinesSelect.innerHTML = '';
+      alert('Não foi possível carregar máquinas da organização.');
+      console.error(e);
+    }
+  }
+
+  async function onClientChange() {
+    const clientId = clientSelect?.value || '';
+    if (!clientId || clientId === '0') { machinesSelect.innerHTML = ''; return; }
+    const orgId = await fetchClientOrgId(clientId);
+    await loadMachines(orgId);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    clientSelect && onClientChange();
+    clientSelect && clientSelect.addEventListener('change', onClientChange);
+  });
+})();
+</script>
+
+{% endblock %}

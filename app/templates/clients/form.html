@@ -41,6 +41,14 @@
         </div>
 
         <div class="form-control w-full">
+          {{ form.org_id.label(class="label") }}
+          {{ form.org_id(class="input input-bordered w-full") }}
+          {% if form.org_id.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ '; '.join(form.org_id.errors) }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="form-control w-full">
           {{ form.email.label(class="label") }}
           {{ form.email(class="input input-bordered w-full") }}
           {% if form.email.errors %}
@@ -66,8 +74,28 @@
       </div>
 
       <!-- Bloco PF -->
-      <h4 class="text-lg font-medium mt-6">Dados de Pessoa Física</h4>
       <div id="pf-block" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6">Dados de Pessoa Física</h4>
+        </div>
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6"></h4>
+        </div>
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6"></h4>
+        </div>
+        <div class="form-control w-full">
+          {{ form.cpf.label(class="label") }}
+          {{ form.cpf(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.rg.label(class="label") }}
+          {{ form.rg(class="input input-bordered w-full") }}
+        </div>
+        <div class="form-control w-full">
+          {{ form.orgao_emissor_rg.label(class="label") }}
+          {{ form.orgao_emissor_rg(class="input input-bordered w-full") }}
+        </div>           
         <div class="form-control w-full">
           {{ form.nacionalidade.label(class="label") }}
           {{ form.nacionalidade(class="input input-bordered w-full") }}
@@ -80,23 +108,19 @@
           {{ form.profissao.label(class="label") }}
           {{ form.profissao(class="input input-bordered w-full") }}
         </div>
-        <div class="form-control w-full">
-          {{ form.rg.label(class="label") }}
-          {{ form.rg(class="input input-bordered w-full") }}
-        </div>
-        <div class="form-control w-full">
-          {{ form.orgao_emissor_rg.label(class="label") }}
-          {{ form.orgao_emissor_rg(class="input input-bordered w-full") }}
-        </div>
-        <div class="form-control w-full">
-          {{ form.cpf.label(class="label") }}
-          {{ form.cpf(class="input input-bordered w-full") }}
-        </div>
       </div>
 
       <!-- Bloco PJ -->
-      <h4 class="text-lg font-medium mt-6">Dados de Pessoa Jurídica</h4>
       <div id="pj-block" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6">Dados de Pessoa Jurídica</h4>
+        </div>
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6"></h4>
+        </div>
+        <div class="form-control w-full">
+          <h4 class="text-lg font-medium mt-6"></h4>
+        </div>                
         <div class="form-control w-full">
           {{ form.cnpj.label(class="label") }}
           {{ form.cnpj(class="input input-bordered w-full") }}
@@ -119,8 +143,9 @@
         </div>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-6 flex gap-2">
         {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('clients.list') }}" class="btn btn-secondary">Voltar</a>
       </div>
     </form>
 

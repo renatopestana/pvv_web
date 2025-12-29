@@ -2,22 +2,20 @@
 {% from "_macros/forms.html" import render_field, render_submit %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card-header bg-light">
-      <h3 class="mb-0">{{ title }}</h3>
-    </div>
-    <div class="card-body">
-      <form method="post" action="" novalidate id="fa-form">
-        {{ form.hidden_tag() }}  {# CSRF + hidden fields #}
+<div class="max-w-5xl mx-auto">
+  <div class="bg-base-200 text-base-content rounded-xl p-6 md:p-8 shadow">
+    <h3 class="text-xl font-semibold mb-4">{{ title }}</h3>
+    <form method="post" action="" novalidate id="fa-form">
+      {{ form.hidden_tag() }}  {# CSRF + hidden fields #}
 
-        {{ render_field(form.name, label="Nome da Área") }}
+      {{ render_field(form.name, label="Nome da Área") }}
 
-        <div class="mt-3 d-flex justify-content-between align-items-center">
-          <a href="{{ url_for('functional_areas.list') }}" class="btn btn-outline-secondary">Cancelar</a>
-          {{ render_submit(form.submit) }}
-        </div>
-      </form>
-    </div>
+      <div class="mt-6 flex gap-2">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('functional_areas.list') }}" class="btn btn-secondary">Voltar</a>
+      </div>
+    </form>
+  </div>
 </div>
 
 {# opcional: evita duplo clique #}
