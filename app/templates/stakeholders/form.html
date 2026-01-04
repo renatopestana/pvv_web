@@ -9,13 +9,22 @@
 
       {{ form.hidden_tag() }}
       {{ render_field(form.name) }}
-      {{ render_select(form.tipo) }}
-
-      <div id="cliente-wrapper">
-        {{ render_select(form.client_id) }}
+      <div class="grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;">
+        <div style="grid-column:span 6;">{{ render_select(form.tipo) }}</div>
+        <div style="grid-column:span 6;">{{ render_select(form.position_id, label="Posição (Cargo)") }}</div>
       </div>
-      <div id="posicao-wrapper">
-        {{ render_select(form.position_id) }}
+
+      <div id="cliente-wrapper" style="display:none;">
+        {{ render_select(form.client_id, label="Cliente") }}
+      </div>
+
+      <div class="grid" style="display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;">
+        <div style="grid-column:span 6;">
+          {{ render_field(form.email, label="E-mail", placeholder="nome@exemplo.com") }}
+        </div>
+        <div style="grid-column:span 6;">
+          {{ render_field(form.phone, label="Telefone", placeholder="(XX) 99999-9999") }}
+        </div>
       </div>
 
       <div class="mt-6 flex gap-2">
@@ -26,34 +35,26 @@
   </div>
 </div>
 
+
 <script>
-  (function () {
-    const tipoEl = document.getElementById('{{ form.tipo.id }}');
-    const clienteWrapper = document.getElementById('cliente-wrapper');
-    const posicaoWrapper = document.getElementById('posicao-wrapper');
-    const cliSelect = document.getElementById('{{ form.client_id.id }}');
-    const posSelect = document.getElementById('{{ form.position_id.id }}');
+(function () {
+  const tipoEl = document.getElementById('{{ form.tipo.id }}');
+  const cliWrap = document.getElementById('cliente-wrapper');
+  const cliSel  = document.getElementById('{{ form.client_id.id }}');
 
-    function toggleFields() {
-      const tipo = tipoEl ? tipoEl.value : '';
-      if (tipo === 'EXTERNO') {
-        clienteWrapper.style.display = '';
-        posicaoWrapper.style.display = 'none';
-        if (posSelect) posSelect.value = '0';  // placeholder 0
-      } else if (tipo === 'INTERNO') {
-        clienteWrapper.style.display = 'none';
-        posicaoWrapper.style.display = '';
-        if (cliSelect) cliSelect.value = '0';
-      } else {
-        clienteWrapper.style.display = 'none';
-        posicaoWrapper.style.display = 'none';
-        if (cliSelect) cliSelect.value = '0';
-        if (posSelect) posSelect.value = '0';
-      }
+  function toggleCliente() {
+    const tipo = (tipoEl?.value || '').toUpperCase();
+    if (tipo === 'EXTERNO') {
+      cliWrap.style.display = '';
+    } else {
+      cliWrap.style.display = 'none';
+      if (cliSel) cliSel.value = '0';
     }
+  }
 
-    document.addEventListener('DOMContentLoaded', toggleFields);
-    if (tipoEl) tipoEl.addEventListener('change', toggleFields);
-  })();
+  document.addEventListener('DOMContentLoaded', toggleCliente);
+  tipoEl && tipoEl.addEventListener('change', toggleCliente);
+})();
 </script>
+
 {% endblock %}

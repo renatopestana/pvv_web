@@ -13,42 +13,66 @@
       <input id="q" name="q" value="{{ q or '' }}" class="input input-bordered w-full"
             placeholder="Buscar por nome..." />
     </div>
-    <div class="flex-1">
-      <label for="tipo" class="label">Tipo</label>
-      <select id="tipo" name="tipo" class="select select-bordered w-full">
+
+    <div class="flex-2">
+      <select name="tipo" id="tipo" class="select select-bordered">
         <option value="">Todos</option>
         <option value="INTERNO" {{ 'selected' if tipo=='INTERNO' }}>Interno</option>
         <option value="EXTERNO" {{ 'selected' if tipo=='EXTERNO' }}>Externo</option>
       </select>
     </div>
+    
+    <div class="flex-2 flex gap-2">
+      <div id="cliente-wrapper" style="display:none;">
+        <select name="client_id" id="client_id" class="select select-bordered">
+          <option value="">Cliente (todos)</option>
+          {% for c in clients %}
+            <option value="{{ c.id }}" {{ 'selected' if client_id==c.id }}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div id="posicao-wrapper" style="display:none;">
+        <select name="position_id" id="position_id" class="select select-bordered">
+          <option value="">Cargo (todos)</option>
+          {% for p in positions %}
+            <option value="{{ p.id }}" {{ 'selected' if position_id==p.id }}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
     <button type="submit" class="btn btn-outline">Buscar</button>
     <a href="{{ url_for('stakeholders.list') }}" class="btn btn-outline">Limpar</a>
+
   </div>
 </form>
 
+
 {% if stakeholders and stakeholders|length > 0 %}
+<div class="overflow-x-auto">
   <table class="table">
     <thead>
       <tr>
         <th>Nome</th>
         <th>Tipo</th>
         <th>Relacionamento</th>
+        <th>E-mail</th>
+        <th>Telefone</th>
         <th>Criado em</th>
-        <th style="width:180px;">Ações</th>
+        <th class="text-end">Ações</th>
       </tr>
     </thead>
     <tbody>
       {% for s in stakeholders %}
       <tr>
         <td>{{ s.name }}</td>
-
         <td>
           {% if s.tipo == 'INTERNO' %}Interno
           {% elif s.tipo == 'EXTERNO' %}Externo
           {% else %}—
           {% endif %}
         </td>
-
         <td>
           {% if s.tipo == 'INTERNO' %}
             {% if s.position %}
@@ -56,33 +80,69 @@
               {% if s.position.functional_area %}
                 ({{ s.position.functional_area.name }})
               {% endif %}
-            {% else %}
-              —
-            {% endif %}
+            {% else %}—{% endif %}
           {% elif s.tipo == 'EXTERNO' %}
             {% if s.client %}
-              {{ s.client.name }} {# Client.name é uma property que retorna nome_razao #}
-            {% else %}
-              —
-            {% endif %}
+              {{ s.client.name }} {# Client.name é a property que retorna nome_razao #}
+            {% else %}—{% endif %}
           {% else %}
             —
           {% endif %}
         </td>
-
+        <td>{{ s.email or '—' }}</td>
+        <td>{{ s.phone or '—' }}</td>
         <td>{{ s.created_at.strftime('%d/%m/%Y %H:%M') if s.created_at }}</td>
         <td>
-          <a href="{{ url_for('stakeholders.edit', id=s.id) }}" class="btn btn-sm btn-warning">Editar</a>
-          <form action="{{ url_for('stakeholders.delete', id=s.id) }}" method="post" style="display:inline;">
-            <button class="btn btn-sm btn-outline">Excluir</button>
-          </form>
-          
+          <div class="flex justify-end gap-2">
+            <a href="{{ url_for('stakeholders.edit', id=s.id) }}" class="btn btn-sm btn-warning">Editar</a>
+            <form action="{{ url_for('stakeholders.delete', id=s.id) }}" method="post">
+              {{ delete_forms[s.id].csrf_token }}
+              <button type="submit" class="btn btn-sm btn-outline"
+                      onclick="return confirm('Confirma a exclusão deste stakeholder?');">
+                Excluir
+              </button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+</div>
 {% else %}
   <p>Nenhum stakeholder encontrado.</p>
 {% endif %}
+
+<!-- JS: mostra/oculta os combos conforme o tipo selecionado -->
+<script>
+(function () {
+  const tipoEl = document.getElementById('tipo');
+  const cliWrap = document.getElementById('cliente-wrapper');
+  const posWrap = document.getElementById('posicao-wrapper');
+
+  function toggleFilters() {
+    const tipo = (tipoEl?.value || '').toUpperCase();
+    if (tipo === 'EXTERNO')
+    { 
+      cliWrap.style.display = ''; 
+      posWrap.style.display = 'none'; 
+      document.getElementById('position_id').value = '';
+    }
+    else if (tipo === 'INTERNO') 
+    { 
+      cliWrap.style.display = 'none'; 
+      posWrap.style.display = ''; 
+      document.getElementById('client_id').value   = '';
+    }
+    else
+    { 
+      cliWrap.style.display = 'none'; 
+      posWrap.style.display = 'none'; 
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', toggleFilters);
+  tipoEl && tipoEl.addEventListener('change', toggleFilters);
+})();
+</script>
 {% endblock %}

@@ -261,16 +261,21 @@ class Position(db.Model):
 class Stakeholder(db.Model):
     __tablename__ = 'stakeholders'
     __table_args__ = (
-        CheckConstraint(
-            "(tipo = 'INTERNO' AND position_id IS NOT NULL AND client_id IS NULL) "
-            "OR (tipo = 'EXTERNO' AND client_id IS NOT NULL AND position_id IS NULL)",
+        db.CheckConstraint(
+            "((tipo = 'INTERNO' AND position_id IS NOT NULL) OR "
+            "(tipo = 'EXTERNO' AND client_id IS NOT NULL))",
             name='ck_stakeholders_tipo_rel'
         ),
     )
 
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     tipo = db.Column(db.Enum('INTERNO', 'EXTERNO', name='tipo_stakeholder'), nullable=False)
+
+    email = db.Column(db.String(150), nullable=True)
+    phone = db.Column(db.String(30), nullable=True)
+
 
     # Se EXTERNO -> client_id obrigatório; Se INTERNO -> position_id obrigatório
     client_id = db.Column(db.Integer, db.ForeignKey('clients.id', ondelete='SET NULL'), nullable=True)
@@ -284,24 +289,33 @@ class Stakeholder(db.Model):
     def __repr__(self):
         return f'<Stakeholder {self.name} ({self.tipo})>'
 
+
     @validates('tipo', 'client_id', 'position_id')
     def validate_tipo_rel(self, key, value):
-        # Validação de coerência na camada de aplicação
         tipo = value if key == 'tipo' else self.tipo
-        client_id = value if key == 'client_id' else self.client_id
-        position_id = value if key == 'position_id' else self.position_id
+        client = value if key == 'client_id' else self.client_id
+        position = value if key == 'position_id' else self.position_id
 
-        if tipo == 'INTERNO':
-            if position_id is None:
-                raise ValueError("Stakeholder INTERNO requer uma Posição.")
-            if client_id is not None:
-                raise ValueError("Stakeholder INTERNO não deve referenciar Cliente.")
-        elif tipo == 'EXTERNO':
-            if client_id is None:
+        # Se ainda não temos dados suficientes, não validar (estado transitório)
+        if tipo is None:
+            return value
+
+        if tipo == 'EXTERNO':
+            # Exigir cliente, mas permitir cargo opcional
+            if client is None and key != 'client_id':
+                return value  # vai chegar depois
+            if client is None:
                 raise ValueError("Stakeholder EXTERNO requer um Cliente.")
-            if position_id is not None:
-                raise ValueError("Stakeholder EXTERNO não deve referenciar Posição.")
+
+        elif tipo == 'INTERNO':
+            # Exigir cargo
+            if position is None and key != 'position_id':
+                return value  # vai chegar depois
+            if position is None:
+                raise ValueError("Stakeholder INTERNO requer uma Posição.")
+
         return value
+
 
 
 # ============================
